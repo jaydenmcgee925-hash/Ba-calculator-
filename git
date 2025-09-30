@@ -1,5 +1,330 @@
 echo "# Ba-calculator-" > README.md
-# (Paste the other files too: index.html, styles.css, app.js)
+# <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BA Calculator (MVP)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>BA Calculator</h1>
+      <p class="sub">Break-even & target-profit in seconds.</p>
+    </header>
+
+    <section class="card grid">
+      <div class="pane">
+        <h2>Inputs</h2>
+
+        <label>
+          Price per unit
+          <input id="price" type="number" inputmode="decimal" step="0.01" min="0" value="25" />
+        </label>
+
+        <label>
+          Variable cost per unit
+          <input id="varCost" type="number" inputmode="decimal" step="0.01" min="0" value="10" />
+        </label>
+
+        <label>
+          Total fixed costs (period)
+          <input id="fixed" type="number" inputmode="decimal" step="0.01" min="0" value="5000" />
+        </label>
+
+        <div class="row">
+          <label>
+            Target profit (after-tax) — optional
+            <input id="targetAfterTax" type="number" inputmode="decimal" step="0.01" min="0" />
+          </label>
+          <label>
+            Tax rate (%) — optional
+            <input id="taxRate" type="number" inputmode="decimal" step="0.01" min="0" max="100" />
+          </label>
+        </div>
+
+        <label>
+          Actual/Planned Sales $ — optional (for Margin of Safety)
+          <input id="actualSales" type="number" inputmode="decimal" step="0.01" min="0" />
+        </label>
+
+        <div id="error" class="error" role="alert" hidden></div>
+      </div>
+
+      <div class="pane">
+        <h2>Results</h2>
+        <div class="kv">
+          <div><span>Contribution Margin / Unit</span><strong id="cmUnit">—</strong></div>
+          <div><span>CM Ratio</span><strong id="cmRatio">—</strong></div>
+        </div>
+
+        <h3>Break-Even</h3>
+        <div class="kv">
+          <div><span>Units</span><strong id="beUnits">—</strong></div>
+          <div><span>Sales $</span><strong id="beSales">—</strong></div>
+        </div>
+
+        <h3>Target Profit</h3>
+        <div class="kv">
+          <div><span>Target Units</span><strong id="targetUnits">—</strong></div>
+          <div><span>Target Sales $</span><strong id="targetSales">—</strong></div>
+        </div>
+
+        <h3>Margin of Safety</h3>
+        <div class="kv">
+          <div><span>MoS ($)</span><strong id="mosDollar">—</strong></div>
+          <div><span>MoS (%)</span><strong id="mosPercent">—</strong></div>
+        </div>
+
+        <button id="copyBtn" class="btn">Copy results</button>
+        <div id="copied" class="copied" hidden>Copied ✔</div>
+      </div>
+    </section>
+
+    <footer>
+      <small>v1.0 — MVP. No data stored.</small>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+:root {
+  --bg: #0b0c10;
+  --card: #12141a;
+  --muted: #98a2b3;
+  --text: #e5e7eb;
+  --accent: #7c3aed;
+  --danger: #ef4444;
+  --ring: #7c3aed55;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background: radial-gradient(1200px 600px at 20% -10%, #1b1f2f 0, #0b0c10 60%);
+  color: var(--text);
+}
+
+.container {
+  max-width: 980px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+header h1 { margin: 0 0 6px; letter-spacing: 0.3px; }
+.sub { color: var(--muted); margin: 0 0 24px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid #202636;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+.grid { display: grid; gap: 24px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 880px){ .grid { grid-template-columns: 1fr; } }
+
+.pane h2, .pane h3 { margin: 0 0 12px; }
+.pane h3 { margin-top: 18px; color: #cbd5e1; font-weight: 600; }
+
+label {
+  display: block;
+  margin: 10px 0 12px;
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+input {
+  margin-top: 6px;
+  width: 100%;
+  padding: 10px 12px;
+  background: #0d1117;
+  color: var(--text);
+  border: 1px solid #1f2432;
+  border-radius: 10px;
+  outline: none;
+}
+input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring); }
+
+.row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 600px){ .row { grid-template-columns: 1fr; } }
+
+.kv { display: grid; gap: 10px; }
+.kv > div {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; background: #0d1117; border: 1px solid #1f2432; border-radius: 10px;
+}
+.kv span { color: var(--muted); font-size: 14px; }
+.kv strong { font-variant-numeric: tabular-nums; }
+
+.btn {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 1px solid #2c2f3b;
+  background: linear-gradient(180deg, #7c3aed, #6d28d9);
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn:hover { filter: brightness(1.05); }
+
+.error {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #2a0e10;
+  border: 1px solid #3f1a1c;
+  color: #fecaca;
+  border-radius: 8px;
+}
+
+.copied { margin-top: 8px; color: #a7f3d0; }
+footer { margin-top: 16px; color: var(--muted); }
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const fmtMoney = (n) =>
+    isFinite(n) ? `$${Number(n).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})}` : "—";
+  const fmtUnits = (n) =>
+    isFinite(n) ? `${Number(n).toLocaleString(undefined,{maximumFractionDigits:2})}` : "—";
+  const fmtPct = (n) =>
+    isFinite(n) ? `${(n*100).toLocaleString(undefined,{maximumFractionDigits:2})}%` : "—";
+
+  const inputs = ["price","varCost","fixed","targetAfterTax","taxRate","actualSales"].map($);
+  const out = {
+    cmUnit: $("cmUnit"),
+    cmRatio: $("cmRatio"),
+    beUnits: $("beUnits"),
+    beSales: $("beSales"),
+    targetUnits: $("targetUnits"),
+    targetSales: $("targetSales"),
+    mosDollar: $("mosDollar"),
+    mosPercent: $("mosPercent"),
+  };
+  const err = $("error");
+  const copyBtn = $("copyBtn");
+  const copied = $("copied");
+
+  function val(n) {
+    const v = parseFloat(n.value);
+    return isFinite(v) ? v : 0;
+  }
+
+  function compute() {
+    copied.hidden = true;
+    err.hidden = true;
+    err.textContent = "";
+
+    const price = val($("price"));
+    const varCost = val($("varCost"));
+    const fixed = val($("fixed"));
+    const targetAfterTax = $("targetAfterTax").value === "" ? null : val($("targetAfterTax"));
+    const taxRateInput = $("taxRate").value === "" ? null : val($("taxRate"));
+    const actualSalesInput = $("actualSales").value === "" ? null : val($("actualSales"));
+
+    // Validation
+    if (price < 0 || varCost < 0 || fixed < 0) {
+      return showError("Inputs cannot be negative.");
+    }
+    if (taxRateInput !== null && (taxRateInput < 0 || taxRateInput >= 100)) {
+      return showError("Tax rate must be between 0% and 99.99%.");
+    }
+
+    const cmUnit = price - varCost;
+    if (cmUnit <= 0) {
+      out.cmUnit.textContent = fmtMoney(cmUnit);
+      out.cmRatio.textContent = "—";
+      out.beUnits.textContent = "—";
+      out.beSales.textContent = "—";
+      out.targetUnits.textContent = "—";
+      out.targetSales.textContent = "—";
+      out.mosDollar.textContent = "—";
+      out.mosPercent.textContent = "—";
+      return showError("Price must exceed variable cost to compute break-even.");
+    }
+
+    const cmRatio = price > 0 ? cmUnit / price : NaN;
+
+    const beUnits = fixed / cmUnit;
+    const beSales = cmRatio > 0 ? fixed / cmRatio : NaN;
+
+    // Target profit
+    let targetUnits = NaN, targetSales = NaN;
+    if (targetAfterTax !== null && targetAfterTax >= 0) {
+      const taxRate = taxRateInput !== null ? taxRateInput / 100 : 0;
+      const targetPreTax = (1 - taxRate) > 0 ? targetAfterTax / (1 - taxRate) : NaN;
+      targetUnits = (fixed + targetPreTax) / cmUnit;
+      targetSales = (fixed + targetPreTax) / cmRatio;
+    } else {
+      // default to break-even if no target
+      targetUnits = beUnits;
+      targetSales = beSales;
+    }
+
+    // Margin of Safety
+    let mosDollar = NaN, mosPercent = NaN;
+    if (actualSalesInput !== null && actualSalesInput >= 0 && isFinite(beSales)) {
+      mosDollar = actualSalesInput - beSales;
+      mosPercent = actualSalesInput > 0 ? mosDollar / actualSalesInput : NaN;
+    }
+
+    // write outputs
+    out.cmUnit.textContent = fmtMoney(cmUnit);
+    out.cmRatio.textContent = fmtPct(cmRatio);
+    out.beUnits.textContent = fmtUnits(beUnits);
+    out.beSales.textContent = fmtMoney(beSales);
+    out.targetUnits.textContent = fmtUnits(targetUnits);
+    out.targetSales.textContent = fmtMoney(targetSales);
+    out.mosDollar.textContent = isFinite(mosDollar) ? fmtMoney(mosDollar) : "—";
+    out.mosPercent.textContent = isFinite(mosPercent) ? fmtPct(mosPercent) : "—";
+  }
+
+  function showError(message) {
+    err.textContent = message;
+    err.hidden = false;
+  }
+
+  // Recalculate on any input change
+  inputs.forEach((el) => {
+    el.addEventListener("input", compute);
+    el.addEventListener("change", compute);
+  });
+
+  // Copy results
+  copyBtn.addEventListener("click", async () => {
+    const text = [
+      `CM/unit: ${$("cmUnit").textContent}`,
+      `CM ratio: ${$("cmRatio").textContent}`,
+      `BE units: ${$("beUnits").textContent}`,
+      `BE sales: ${$("beSales").textContent}`,
+      `Target units: ${$("targetUnits").textContent}`,
+      `Target sales: ${$("targetSales").textContent}`,
+      `Margin of Safety ($): ${$("mosDollar").textContent}`,
+      `Margin of Safety (%): ${$("mosPercent").textContent}`,
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(text);
+      copied.hidden = false;
+      setTimeout(() => (copied.hidden = true), 2000);
+    } catch {
+      // Fallback
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      copied.hidden = false;
+      setTimeout(() => (copied.hidden = true), 2000);
+    }
+  });
+
+  // initial compute
+  compute();
+})();
 
 git init
 git add .
