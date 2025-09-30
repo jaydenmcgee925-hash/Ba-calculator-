@@ -1,0 +1,9 @@
+echo "# Ba-calculator-" > README.md
+# (Paste the other files too: index.html, styles.css, app.js)
+
+git init
+git add .
+git commit -m "feat: MVP BA calculator (break-even & target profit)"
+git branch -M main
+git remote add origin https://github.com/jaydenmcgee925-hash/Ba-calculator-.git
+git push -u origin main
